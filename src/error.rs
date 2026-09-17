@@ -37,6 +37,12 @@ pub enum VesselError {
     PayloadDigest,
     #[error("PNG contains multiple Vessel chunks")]
     MultipleVesselChunks,
+    #[error("image format is invalid: {0}")]
+    InvalidImage(String),
+    #[error("image format is unsupported: {0}")]
+    UnsupportedImage(String),
+    #[error("executable polyglot is unavailable for {0}")]
+    UnsupportedPolyglot(String),
 }
 
 pub fn io_error(path: &std::path::Path, source: std::io::Error) -> VesselError {

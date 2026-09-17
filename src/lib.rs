@@ -1,5 +1,6 @@
 pub mod error;
 pub mod format;
+pub mod image;
 pub mod payload;
 pub mod png;
 
