@@ -1,0 +1,19 @@
+[package]
+name = "vessel"
+version = "0.1.0"
+edition = "2024"
+description = "A vessel for executable payloads."
+license-file = "UNLICENSE"
+authors = ["playfairs"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+sha2 = "0.10"
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"
+
+[[bin]]
+name = "vessel"
+path = "src/main.rs"

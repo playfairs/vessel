@@ -1,0 +1,12 @@
+project "vessel" {
+	description = "A vessel for executable payloads."
+	version = file("./VERSION")
+	license = file("./UNLICENSE")
+	authors = ["playfairs"]
+	maintainers = ["playfairs <root@playfairs.cc>"]
+
+	edition = "2024"
+	executable.rust "vessel" {
+			sources = ["src/main.rs"]
+		}
+	}

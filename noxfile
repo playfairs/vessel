@@ -1,0 +1,13 @@
+tasks:
+  build:
+    run: cargo build
+  test:
+    run: cargo test --all-targets
+  format:
+    run: cargo fmt --all
+  check:
+    run: cargo check --all-targets
+  cli:
+    run: cargo run -- --help
+  release:
+    run: cargo build --release
