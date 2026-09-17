@@ -11,7 +11,25 @@ nix develop
 nox task build
 ```
 
-## Usage
+## Installation
+
+Inside the Nix development shell, build Vessel with Nox:
+
+```sh
+nix develop
+nox task build
+```
+
+To install it into a user-local directory:
+
+```sh
+nox install --prefix "$HOME/.local"
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+The executable is then available as `vessel`.
+
+## Commands
 
 ```sh
 vessel embed image.png program -o vessel.png
@@ -22,9 +40,11 @@ vessel verify vessel.png
 vessel run vessel.png --argument
 ```
 
-Embedding rejects empty payloads and images that already contain a Vessel chunk. Extraction rejects missing, malformed, corrupt, unsupported, or duplicate Vessel chunks. Vessel never executes payloads.
+The complete command reference, including input/output behavior and validation stages, is in [docs/commands.md](docs/commands.md).
 
-`create` is the validated PNG container workflow. `run` extracts a verified payload to a secure temporary executable and invokes it directly; it does not execute the image file. Native macOS executable-image polyglots are currently unsupported because the image and Mach-O formats require incompatible byte-zero signatures.
+`embed` and `create` combine an image with one opaque payload. They do not combine two existing Vessel images or two payloads. Embedding rejects empty payloads and images that already contain a Vessel chunk. Extraction rejects missing, malformed, corrupt, unsupported, or duplicate Vessel chunks.
+
+`create` is the format-detecting, final-validation PNG container workflow. `run` extracts a verified payload to a secure temporary executable and invokes it directly; it does not execute the image file. Native macOS executable-image polyglots are currently unsupported because the image and Mach-O formats require incompatible byte-zero signatures.
 
 ## Format
 

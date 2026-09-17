@@ -1,6 +1,6 @@
 # Vessel documentation
 
-The format specification is split into [chunk.md](format/chunk.md) and [layout.md](format/layout.md). The implementation deliberately uses a normal PNG ancillary chunk instead of bytes after `IEND`.
+The documentation is split into the [command reference](commands.md), [chunk specification](format/chunk.md), [binary layout](format/layout.md), and [executable-image boundary](format/executable.md). The implementation deliberately uses a normal PNG ancillary chunk instead of bytes after `IEND`.
 
 ## Executable-image capability
 
