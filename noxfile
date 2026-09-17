@@ -9,5 +9,13 @@ tasks:
     run: cargo check --all-targets
   cli:
     run: cargo run -- --help
+  formats:
+    run: cargo test --test formats
+  launcher:
+    run: cargo test --test run
+  integration:
+    run: cargo test --all-targets
+  examples:
+    run: cargo test --test formats --test run
   release:
     run: cargo build --release

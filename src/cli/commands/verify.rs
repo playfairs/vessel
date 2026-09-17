@@ -1,8 +1,17 @@
 use std::{fs, path::Path};
-use vessel::{VesselError, error::io_error, png};
+use vessel::{VesselError, error::io_error, image, png};
 
 pub fn run(image: &Path) -> Result<(), VesselError> {
     let bytes = fs::read(image).map_err(|source| io_error(image, source))?;
+    let format = image::detect(&bytes)?;
+    if format != image::ImageFormat::Png {
+        println!(
+            "valid {} image; capability: {:?}",
+            format.name(),
+            format.capability()
+        );
+        return Ok(());
+    }
     let document = png::validator::validate(&bytes)?;
     let vessels: Vec<_> = document
         .chunks

@@ -15,12 +15,16 @@ nox task build
 
 ```sh
 vessel embed image.png program -o vessel.png
+vessel create image.png program -o vessel.png
 vessel extract vessel.png -o program
 vessel inspect vessel.png
 vessel verify vessel.png
+vessel run vessel.png --argument
 ```
 
 Embedding rejects empty payloads and images that already contain a Vessel chunk. Extraction rejects missing, malformed, corrupt, unsupported, or duplicate Vessel chunks. Vessel never executes payloads.
+
+`create` is the validated PNG container workflow. `run` extracts a verified payload to a secure temporary executable and invokes it directly; it does not execute the image file. Native macOS executable-image polyglots are currently unsupported because the image and Mach-O formats require incompatible byte-zero signatures.
 
 ## Format
 
