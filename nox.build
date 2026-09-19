@@ -10,4 +10,4 @@ project "vessel" {
 		sources = ["src/main.rs"]
 		install = true
 	}
-	}
+}
