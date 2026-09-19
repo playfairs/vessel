@@ -21,7 +21,7 @@ Creates a new validated Vessel image. The implementation performs these steps in
 1. Reads `IMAGE` completely.
 2. Detects its binary format using magic bytes and structural validation.
 3. Reads `PAYLOAD` completely as opaque bytes.
-4. Accepts only PNG for Vessel container creation. JPEG/JPG, WebP, GIF, BMP, PBM, PGM, PPM, TGA, and TIFF are detected and validated but return an explicit unsupported-polyglot error.
+4. Accepts PNG for Vessel container creation. Other formats are detected and validated but remain unavailable for container insertion until a format-specific container strategy is implemented.
 5. Rejects an empty payload.
 6. Rejects a PNG that already contains a `veSL` chunk.
 7. Calculates SHA-256 over the payload.
@@ -37,6 +37,23 @@ vessel create examples/images/png/image.png examples/binaries/hello -o hello.png
 
 The result is a valid PNG container. It is not a native executable image, so `chmod +x hello.png; ./hello.png` is expected to fail with an exec-format error on macOS. Use `vessel run hello.png` instead.
 
+`create` reports progress to standard error as it reads inputs, packs bundle entries, validates the image, embeds the payload, and writes the output. Bundle traversal is reported every 100 entries.
+
+The payload may be either a regular file, a macOS application bundle directory, or the main executable inside that bundle. When given `Contents/MacOS/STRAFTAT`, Vessel detects the enclosing `STRAFTAT.app` and preserves its relative paths, permissions, and relative symlinks before running the reconstructed bundle:
+
+```sh
+vessel create examples/images/png/image.png /path/to/STRAFTAT.app -o straftat.png
+vessel run straftat.png
+```
+
+The executable-path form is also supported:
+
+```sh
+vessel create examples/images/png/image.png \
+	/path/to/STRAFTAT.app/Contents/MacOS/STRAFTAT \
+	-o straftat.png
+```
+
 ## `vessel embed`
 
 ```sh
@@ -51,7 +68,7 @@ The lower-level PNG embedding command. It reads both files, validates the input 
 vessel extract <IMAGE> -o <OUTPUT>
 ```
 
-Extracts the exact payload bytes from a Vessel PNG:
+Extracts the exact payload bytes from a Vessel PNG. A regular-file payload is written as one file. A bundled payload is reconstructed as a directory tree at the output path:
 
 1. Reads and validates the PNG signature, structure, chunk lengths, and CRCs.
 2. Locates `veSL` chunks by their structured PNG chunk type, not by scanning arbitrary bytes.
@@ -104,9 +121,9 @@ Runs the payload from a verified Vessel PNG without executing the image file:
 2. Requires PNG format.
 3. Extracts and verifies the Vessel payload, including its SHA-256 digest.
 4. Creates an unpredictable temporary directory using the operating system temporary area.
-5. Writes the payload to a file named `payload` inside that directory.
-6. Sets Unix permissions to `0700`.
-7. Starts the temporary file directly with `std::process::Command`, never through a shell.
+5. Writes a regular-file payload to a temporary executable, or reconstructs a bundled payload below the temporary directory.
+6. Preserves Unix permissions and starts the bundle's declared `Contents/MacOS` entrypoint when applicable.
+7. Starts the payload directly with `std::process::Command`, never through a shell.
 8. Forwards every argument with its original boundary and inherits the current environment.
 9. Waits for the process and returns its exit code. A signal termination is mapped to `128 + signal` where supported.
 10. Removes the temporary directory when the command returns.

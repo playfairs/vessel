@@ -1,18 +1,29 @@
 use std::{fs, path::Path, process::Command};
-use vessel::{VesselError, error::io_error, image};
+use vessel::{VesselError, error::io_error, image, payload::bundle};
 
 pub fn run(image_path: &Path, arguments: &[String]) -> Result<i32, VesselError> {
+    eprintln!("[run] reading image: {}", image_path.display());
     let image_bytes = fs::read(image_path).map_err(|source| io_error(image_path, source))?;
+    eprintln!("[run] validating image format");
     let format = image::detect(&image_bytes)?;
     if format != image::ImageFormat::Png {
         return Err(VesselError::UnsupportedPolyglot(format.name().into()));
     }
+    eprintln!("[run] extracting and verifying payload");
     let payload = vessel::extract(&image_bytes)?;
     let directory =
         tempfile::tempdir().map_err(|source| io_error(Path::new("temporary directory"), source))?;
-    let executable = directory.path().join("payload");
-    fs::write(&executable, payload).map_err(|source| io_error(&executable, source))?;
-    set_executable(&executable)?;
+    let executable = if bundle::is_bundle(&payload) {
+        eprintln!("[run] reconstructing application bundle");
+        bundle::unpack(&payload, directory.path())?
+    } else {
+        eprintln!("[run] materializing regular executable");
+        let executable = directory.path().join("payload");
+        fs::write(&executable, payload).map_err(|source| io_error(&executable, source))?;
+        set_executable(&executable)?;
+        executable
+    };
+    eprintln!("[run] launching: {}", executable.display());
     let status = Command::new(&executable)
         .args(arguments)
         .status()
